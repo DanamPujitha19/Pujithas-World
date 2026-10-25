@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pujitha's World 🌍</title>
+    <!-- Tailwind CSS for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #faf5f8;
+        }
+        .card-hover:hover {
+            transform: translateY(-3px);
+            transition: all 0.25s ease-in-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800 flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-white/85 backdrop-blur-md border-b border-pink-100 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3.5">
+                <div class="bg-gradient-to-tr from-pink-500 to-rose-400 text-white p-3 rounded-2xl shadow-md shadow-pink-200">
+                    <i class="fa-solid fa-earth-asia text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold bg-gradient-to-r from-pink-600 via-rose-600 to-purple-600 bg-clip-text text-transparent">Pujitha's World 🌍</h1>
+                    <p class="text-xs font-medium text-rose-500/80 flex items-center gap-1">Naa Vallu <span class="text-rose-500">❤️</span></p>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center gap-2.5 flex-wrap justify-center">
+                <button id="addProfileBtn" onclick="openModal()" class="bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white px-4 py-2.5 rounded-2xl font-medium text-sm shadow-md shadow-pink-200 transition flex items-center gap-2">
+                    <i class="fa-solid fa-user-plus"></i> Add Person
+                </button>
+                <button id="addMemoryBtn" onclick="openMemoryModal()" class="hidden bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-purple-700 text-white px-4 py-2.5 rounded-2xl font-medium text-sm shadow-md shadow-pink-200 transition items-center gap-2">
+                    <i class="fa-solid fa-camera-retro"></i> Add Memory
+                </button>
+                <button onclick="exportData()" class="bg-white hover:bg-pink-50 text-slate-700 border border-pink-100 px-3.5 py-2.5 rounded-2xl font-medium text-sm transition flex items-center gap-1.5 shadow-sm" title="Export Backup">
+                    <i class="fa-solid fa-download text-pink-500"></i> Export
+                </button>
+                <label class="bg-white hover:bg-pink-50 text-slate-700 border border-pink-100 px-3.5 py-2.5 rounded-2xl font-medium text-sm transition flex items-center gap-1.5 cursor-pointer shadow-sm" title="Import Backup">
+                    <i class="fa-solid fa-upload text-pink-500"></i> Import
+                    <input type="file" id="importFile" accept=".json" class="hidden" onchange="importData(event)">
+                </label>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+
+        <!-- Navigation Tabs & Search -->
+        <div class="bg-white/85 backdrop-blur-sm p-4 rounded-3xl shadow-sm border border-pink-100 mb-8 flex flex-col md:flex-row gap-4 items-center justify-between">
+            <div class="flex items-center gap-2 bg-pink-50/60 p-1.5 rounded-2xl border border-pink-100">
+                <button onclick="switchTab('profiles')" id="tabProfiles" class="px-5 py-2 rounded-xl text-xs font-bold bg-pink-600 text-white shadow-sm transition">Directory</button>
+                <button onclick="switchTab('memories')" id="tabMemories" class="px-5 py-2 rounded-xl text-xs font-bold text-slate-600 hover:text-pink-600 transition">Memories 📸</button>
+            </div>
+
+            <div class="relative w-full md:w-80" id="searchContainer">
+                <i class="fa-solid fa-search absolute left-4 top-3.5 text-pink-400"></i>
+                <input type="text" id="searchInput" oninput="filterProfiles()" placeholder="Search by name, relation, or blood group..." 
+                    class="w-full pl-11 pr-4 py-2.5 bg-pink-50/50 border border-pink-100 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 text-slate-700">
+            </div>
+        </div>
+
+        <!-- Directory Section -->
+        <div id="directorySection">
+            <div id="profilesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Dynamic Cards Loaded Here -->
+            </div>
+            <!-- Empty State -->
+            <div id="emptyState" class="hidden text-center py-16">
+                <div class="bg-pink-100 text-pink-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl shadow-inner">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-700">No profiles found</h3>
+                <p class="text-sm text-slate-400 mt-1">Get started by adding your family members or dearest friends.</p>
+            </div>
+        </div>
+
+        <!-- Memories Section -->
+        <div id="memoriesSection" class="hidden">
+            <div id="memoriesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Dynamic Memory Cards Loaded Here -->
+            </div>
+            <!-- Memories Empty State -->
+            <div id="memoriesEmptyState" class="hidden text-center py-16">
+                <div class="bg-purple-100 text-purple-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl shadow-inner">
+                    <i class="fa-solid fa-images"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-700">No memories added yet</h3>
+                <p class="text-sm text-slate-400 mt-1">Capture your favorite moments by adding photos to your memories section.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add/Edit Profile Modal -->
+    <div id="profileModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden my-8 border border-pink-100">
+            <div class="px-6 py-4 border-b border-pink-50 flex justify-between items-center bg-pink-50/50">
+                <h3 id="modalTitle" class="font-bold text-slate-800 text-lg">Add New Profile</h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 p-1 w-8 h-8 rounded-full flex items-center justify-center hover:bg-pink-100/50"><i class="fa-solid fa-xmark text-sm"></i></button>
+            </div>
+            <form id="profileForm" onsubmit="saveProfile(event)" class="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+                <input type="hidden" id="profileId">
+                <input type="hidden" id="photoBase64">
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">First Name *</label>
+                        <input type="text" id="firstName" required class="w-full px-3.5 py-2.5 border border-pink-100 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 bg-pink-50/20">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Last Name *</label>
+                        <input type="text" id="lastName" required class="w-full px-3.5 py-2.5 border border-pink-100 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 bg-pink-50/20">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Relation *</label>
+                        <input type="text" id="category" required placeholder="e.g. Father, Best Friend..." class="w-full px-3.5 py-2.5 border border-pink-100 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 bg-pink-50/20">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Blood Group</label>
+                        <select id="bloodGroup" class="w-full px-3.5 py-2.5 border border-pink-100 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white">
+                            <option value="">Unknown / Not Specified</option>
+                            <option value="A+">A+</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B-">B-</option>
+                            <option value="AB+">AB+</option>
+                            <option value="AB-">AB-</option>
+                            <option value="O+">O+</option>
+                            <option value="O-">O-</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Date of Birth</label>
+                        <input type="text" id="dob" placeholder="DD/MM/YYYY" class="w-full px-3.5 py-2.5 border border-pink-100 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 bg-pink-50/20">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Phone Number</label>
+                        <input type="tel" id="phone" placeholder="+91 00000 00000" class="w-full px-3.5 py-2.5 border border-pink-100 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 bg-pink-50/20">
+                    </div>
+                </div>
+
+                <!-- Photo Upload & Circular Editor Section -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Profile Picture & Adjustments</label>
+                    <div class="flex items-center gap-3 mb-3">
+                        <label class="bg-pink-50 hover:bg-pink-100 text-pink-600 px-4 py-2.5 rounded-2xl font-medium text-xs border border-pink-200 cursor-pointer transition flex items-center gap-2 shadow-sm">
+                            <i class="fa-solid fa-folder-open"></i> Choose File
+                            <input type="file" id="photoFile" accept="image/*" class="hidden" onchange="initImageEditor(event, 'photoPreviewCanvas', 'photoBase64', 'photoEditorContainer', 'profile')">
+                        </label>
+                        <span id="fileNameDisplay" class="text-xs text-slate-400 italic">No file chosen</span>
+                    </div>
+
+                    <!-- Editor UI Container -->
+                    <div id="photoEditorContainer" class="hidden bg-slate-50 border border-pink-100 p-4 rounded-2xl space-y-3">
+                        <div class="flex justify-center">
+                            <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-md relative bg-slate-200 flex items-center justify-center">
+                                <canvas id="photoPreviewCanvas" class="w-full h-full rounded-full object-cover"></canvas>
+                            </div>
+                        </div>
+                        <!-- Pan (Directional) Controls -->
+                        <div class="flex flex-col items-center gap-1">
+                            <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Position (Pan)</span>
+                            <button type="button" onclick="panImage('profile', 0, -10)" class="w-8 h-8 bg-white border border-pink-200 rounded-xl hover:bg-pink-50 text-pink-600 shadow-sm flex items-center justify-center"><i class="fa-solid fa-arrow-up text-xs"></i></button>
+                            <div class="flex gap-4">
+                                <button type="button" onclick="panImage('profile', -10, 0)" class="w-8 h-8 bg-white border border-pink-200 rounded-xl hover:bg-pink-50 text-pink-600 shadow-sm flex items-center justify-center"><i class="fa-solid fa-arrow-left text-xs"></i></button>
+                                <button type="button" onclick="panImage('profile', 10, 0)" class="w-8 h-8 bg-white border border-pink-200 rounded-xl hover:bg-pink-50 text-pink-600 shadow-sm flex items-center justify-center"><i class="fa-solid fa-arrow-right text-xs"></i></button>
+                            </div>
+                            <button type="button" onclick="panImage('profile', 0, 10)" class="w-8 h-8 bg-white border border-pink-200 rounded-xl hover:bg-pink-50 text-pink-600 shadow-sm flex items-center justify-center"><i class="fa-solid fa-arrow-down text-xs"></i></button>
+                        </div>
+
+                        <div class="space-y-2 text-xs">
+                            <div>
+                                <label class="flex justify-between font-medium text-slate-600 mb-1"><span>Zoom</span> <span id="zoomVal">100%</span></label>
+                                <input type="range" id="zoomRange" min="0.5" max="3" step="0.05" value="1" class="w-full accent-pink-600" oninput="updateImageTransform('profile')">
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="text-slate-600 font-medium mb-1 block">Brightness</label>
+                                    <input type="range" id="brightRange" min="50" max="150" value="100" class="w-full accent-pink-600" oninput="updateImageTransform('profile')">
+                                </div>
+                                <div>
+                                    <label class="text-slate-600 font-medium mb-1 block">Contrast</label>
+                                    <input type="range" id="contrastRange" min="50" max="150" value="100" class="w-full accent-pink-600" oninput="updateImageTransform('profile')">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Additional Notes</label>
+                    <textarea id="notes" rows="2" placeholder="Any extra memories or details..." class="w-full px-3.5 py-2.5 border border-pink-100 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 bg-pink-50/20"></textarea>
+                </div>
+
+                <div class="flex justify-end gap-2.5 pt-4 border-t border-pink-50">
+                    <button type="button" onclick="closeModal()" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-2xl text-sm font-medium transition">Cancel</button>
+                    <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white rounded-2xl text-sm font-medium shadow-md shadow-pink-200 transition">Save Profile</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Memory Modal -->
+    <div id="memoryModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden my-8 border border-purple-100">
+            <div class="px-6 py-4 border-b border-purple-50 flex justify-between items-center bg-purple-50/50">
+                <h3 class="font-bold text-slate-800 text-lg">Add New Memory 📸</h3>
+                <button onclick="closeMemoryModal()" class="text-slate-400 hover:text-slate-600 p-1 w-8 h-8 rounded-full flex items-center justify-center hover:bg-purple-100/50"><i class="fa-solid fa-xmark text-sm"></i></button>
+            </div>
+            <form id="memoryForm" onsubmit="saveMemory(event)" class="p-6 space-y-4">
+                <input type="hidden" id="memoryPhotoBase64">
+                
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Memory Title / Caption *</label>
+                    <input type="text" id="memoryTitle" required placeholder="e.g. Family Trip to Goa 2025" class="w-full px-3.5 py-2.5 border border-purple-100 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-purple-50/20">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Date / Occasion</label>
+                    <input type="text" id="memoryDate" placeholder="e.g. December 2025" class="w-full px-3.5 py-2.5 border border-purple-100 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-purple-50/20">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Memory Photo *</label>
+                    <div class="flex items-center gap-3 mb-3">
+                        <label class="bg-purple-50 hover:bg-purple-100 text-purple-600 px-4 py-2.5 rounded-2xl font-medium text-xs border border-purple-200 cursor-pointer transition flex items-center gap-2 shadow-sm">
+                            <i class="fa-solid fa-folder-open"></i> Choose Photo
+                            <input type="file" id="memoryPhotoFile" accept="image/*" class="hidden" onchange="initImageEditor(event, 'memoryPreviewCanvas', 'memoryPhotoBase64', 'memoryEditorContainer', 'memory')">
+                        </label>
+                        <span id="memoryFileNameDisplay" class="text-xs text-slate-400 italic">No file chosen</span>
+                    </div>
+
+                    <!-- Memory Editor Container -->
+                    <div id="memoryEditorContainer" class="hidden bg-slate-50 border border-purple-100 p-4 rounded-2xl space-y-3">
+                        <div class="flex justify-center">
+                            <div class="w-full h-40 rounded-2xl overflow-hidden border border-slate-200 bg-slate-200 flex items-center justify-center relative">
+                                <canvas id="memoryPreviewCanvas" class="max-h-full"></canvas>
+                            </div>
+                        </div>
+                        <!-- Pan (Directional) Controls -->
+                        <div class="flex flex-col items-center gap-1">
+                            <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Position (Pan)</span>
+                            <button type="button" onclick="panImage('memory', 0, -10)" class="w-8 h-8 bg-white border border-purple-200 rounded-xl hover:bg-purple-50 text-purple-600 shadow-sm flex items-center justify-center"><i class="fa-solid fa-arrow-up text-xs"></i></button>
+                            <div class="flex gap-4">
+                                <button type="button" onclick="panImage('memory', -10, 0)" class="w-8 h-8 bg-white border border-purple-200 rounded-xl hover:bg-purple-50 text-purple-600 shadow-sm flex items-center justify-center"><i class="fa-solid fa-arrow-left text-xs"></i></button>
+                                <button type="button" onclick="panImage('memory', 10, 0)" class="w-8 h-8 bg-white border border-purple-200 rounded-xl hover:bg-purple-50 text-purple-600 shadow-sm flex items-center justify-center"><i class="fa-solid fa-arrow-right text-xs"></i></button>
+                            </div>
+                            <button type="button" onclick="panImage('memory', 0, 10)" class="w-8 h-8 bg-white border border-purple-200 rounded-xl hover:bg-purple-50 text-purple-600 shadow-sm flex items-center justify-center"><i class="fa-solid fa-arrow-down text-xs"></i></button>
+                        </div>
+
+                        <div class="space-y-2 text-xs">
+                            <div>
+                                <label class="flex justify-between font-medium text-slate-600 mb-1"><span>Zoom</span> <span id="memZoomVal">100%</span></label>
+                                <input type="range" id="memZoomRange" min="0.5" max="3" step="0.05" value="1" class="w-full accent-purple-600" oninput="updateImageTransform('memory')">
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="text-slate-600 font-medium mb-1 block">Brightness</label>
+                                    <input type="range" id="memBrightRange" min="50" max="150" value="100" class="w-full accent-purple-600" oninput="updateImageTransform('memory')">
+                                </div>
+                                <div>
+                                    <label class="text-slate-600 font-medium mb-1 block">Contrast</label>
+                                    <input type="range" id="memContrastRange" min="50" max="150" value="100" class="w-full accent-purple-600" oninput="updateImageTransform('memory')">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2.5 pt-4 border-t border-purple-50">
+                    <button type="button" onclick="closeMemoryModal()" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-2xl text-sm font-medium transition">Cancel</button>
+                    <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-purple-700 text-white rounded-2xl text-sm font-medium shadow-md shadow-purple-200 transition">Save Memory</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- View Details Modal (Increased size) -->
+    <div id="detailsModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden my-8 p-6 relative border border-pink-100">
+            <button onclick="closeDetailsModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-2 bg-pink-50 rounded-full w-8 h-8 flex items-center justify-center transition"><i class="fa-solid fa-xmark text-sm"></i></button>
+            <div id="detailsContent" class="flex flex-col items-center text-center">
+                <!-- Dynamic Details Loaded Here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Full Screen Image Modal with Interactive Zooming & Panning -->
+    <div id="fullImageModal" onclick="closeFullImage()" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 hidden flex flex-col items-center justify-center p-4 overflow-hidden select-none">
+        <!-- Floating Toolbar -->
+        <div class="absolute top-6 flex items-center gap-3 bg-white/10 border border-white/20 backdrop-blur-md px-4 py-2 rounded-2xl text-white shadow-xl z-50" onclick="event.stopPropagation()">
+            <button onclick="zoomFullImage(0.25)" class="w-8 h-8 hover:bg-white/20 rounded-xl flex items-center justify-center transition" title="Zoom In"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+            <button onclick="zoomFullImage(-0.25)" class="w-8 h-8 hover:bg-white/20 rounded-xl flex items-center justify-center transition" title="Zoom Out"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+            <button onclick="resetFullImageZoom()" class="px-2.5 py-1 text-xs font-bold hover:bg-white/20 rounded-xl transition" title="Reset Zoom"><span id="fullZoomLevel">100%</span></button>
+            <div class="w-px h-5 bg-white/20 my-auto"></div>
+            <button onclick="closeFullImage()" class="w-8 h-8 hover:bg-rose-500/30 text-rose-300 rounded-xl flex items-center justify-center transition" title="Close"><i class="fa-solid fa-xmark text-lg"></i></button>
+        </div>
+
+        <!-- Draggable & Zoomable Image Wrapper -->
+        <div id="fullImageContainer" class="w-full h-full flex items-center justify-center overflow-hidden cursor-grab" onclick="event.stopPropagation()">
+            <img id="fullImageDisplay" src="" alt="Full View" class="max-w-full max-h-[85vh] object-contain rounded-2xl shadow-2xl border-4 border-white/10 transition-transform duration-75">
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white/50 border-t border-pink-100 py-6 text-center text-xs text-slate-400 mt-auto">
+        <p>Pujitha's World • Data stored locally in your browser.</p>
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        let appData = JSON.parse(localStorage.getItem('pujithas_world_full_data')) || {
+            profiles: [
+                {
+                    "id": "1791543991234",
+                    "firstName": "Danam",
+                    "lastName": "Gopi",
+                    "category": "Taatha",
+                    "bloodGroup": "",
+                    "dob": "",
+                    "phone": "",
+                    "photo": "images/Nanamma-Taatha.jpeg"
+                },
+                {
+                    "id": "1791543260363",
+                    "firstName": "Danam",
+                    "lastName": "Janaki",
+                    "category": "Nanamma",
+                    "bloodGroup": "",
+                    "dob": "",
+                    "phone": "+91 9052220211",
+                    "photo": "images/Nanamma.jpeg"
+                },
+                {
+                    "id": "1791543543803",
+                    "firstName": "Akula",
+                    "lastName": "Appamma",
+                    "category": "Ammamma",
+                    "bloodGroup": "",
+                    "dob": "",
+                    "phone": "+91 9346874189",
+                    "photo": "images/Ammamma.jpeg"
+                },
+                {
+                    "id": "1",
+                    "firstName": "Danam",
+                    "lastName": "Ram Prasad",
+                    "category": "Nanna",
+                    "bloodGroup": "AB+",
+                    "dob": "06/04/1982",
+                    "phone": "+91 9346458726",
+                    "photo": "images/Nanna.jpeg"
+                },
+                {
+                    "id": "2",
+                    "firstName": "Danam",
+                    "lastName": "Malleswari",
+                    "category": "Amma",
+                    "bloodGroup": "O+",
+                    "dob": "23/10/1983",
+                    "phone": "+91 9966147993",
+                    "photo": "images/Amma.jpeg"
+                },
+                {
+                    "id": "1791541855434",
+                    "firstName": "Danam",
+                    "lastName": "Pujitha",
+                    "category": "Me",
+                    "bloodGroup": "B+",
+                    "dob": "19/05/2005",
+                    "phone": "+91 9247503528",
+                    "photo": "images/Pujitha.jpeg"
+                },
+                {
+                    "id": "1791542221278",
+                    "firstName": "Danam",
+                    "lastName": "YogaSri",
+                    "category": "Chelli",
+                    "bloodGroup": "B+",
+                    "dob": "25/04/2008",
+                    "phone": "+91 7382736928",
+                    "photo": "images/Siri.jpeg"
+                },
+                {
+                    "id": "1792906699447",
+                    "firstName": "Meka",
+                    "lastName": "Mallikarjunarao",
+                    "category": "Mama",
+                    "bloodGroup": "",
+                    "dob": "25/05",
+                    "phone": "+91 8897489897",
+                    "photo": "images/Malli mama.jpeg"
+                },
+                {
+                    "id": "1792906800109",
+                    "firstName": "Meka",
+                    "lastName": "JayaLakshmi",
+                    "category": "Atha",
+                    "bloodGroup": "A+",
+                    "dob": "06/01",
+                    "phone": "+91 7702168091",
+                    "photo": "images/Jaya Atha.jpeg"
+                },
+                {
+                    "id": "1792907154736",
+                    "firstName": "Meka",
+                    "lastName": "Amrutha Valli",
+                    "category": "Vadina",
+                    "bloodGroup": "A+",
+                    "dob": "23/07/2000",
+                    "phone": "+91 8179805509",
+                    "photo": "images/Amrutha Vadina.jpeg"
+                },
+                {
+                    "id": "1792907274063",
+                    "firstName": "Meka",
+                    "lastName": "ChandraShekar",
+                    "category": "Bava",
+                    "bloodGroup": "A+",
+                    "dob": "20/05/2003",
+                    "phone": "+91 8978947264",
+                    "photo": "images/Chandu.jpeg"
+                },
+                {
+                    "id": "1792907031564",
+                    "firstName": "Pendli",
+                    "lastName": "Narendra",
+                    "category": "Anna",
+                    "bloodGroup": "",
+                    "dob": "14/01",
+                    "phone": "",
+                    "photo": "images/Narendra Anna.jpeg"
+                },
+                {
+                    "id": "1792906973168",
+                    "firstName": "Pendli",
+                    "lastName": "Swathi Mani Deepthi(Meka)",
+                    "category": "Vadina",
+                    "bloodGroup": "A+",
+                    "dob": "27/09/1999",
+                    "phone": "+91 7794833958",
+                    "photo": "images/Mani Vadina.jpeg"
+                },
+                {
+                    "id": "1792907445934",
+                    "firstName": "Pendli",
+                    "lastName": "Greeshma",
+                    "category": "Kodalu Pilla",
+                    "bloodGroup": "",
+                    "dob": "20/05/2025",
+                    "phone": "",
+                    "photo": "images/Greeshlu.jpeg"
+                },
+                {
+                    "id": "1792911215312",
+                    "firstName": "Akula",
+                    "lastName": "Kotheswarao",
+                    "category": "Pedha Mama",
+                    "bloodGroup": "",
+                    "dob": "",
+                    "phone": "",
+                    "photo": "images/Pedha MamaAtha.jpeg"
+                },
+                {
+                    "id": "1792911282914",
+                    "firstName": "Akula",
+                    "lastName": "Seetha MahaLakshmi",
+                    "category": "Pedha Atha",
+                    "bloodGroup": "",
+                    "dob": "",
+                    "phone": "",
+                    "photo": "images/Pedha MamaAtha.jpeg"
+                },
+                {
+                    "id": "1792907581197",
+                    "firstName": "Akula",
+                    "lastName": "Suresh Kumar",
+                    "category": "Mama",
+                    "bloodGroup": "",
+                    "dob": "17/10/1978",
+                    "phone": "+91 9100155761",
+                    "photo": "images/Suresh Mama.jpeg"
+                },
+                {
+                    "id": "1792907614531",
+                    "firstName": "Akula",
+                    "lastName": "Bhavani",
+                    "category": "Atha",
+                    "bloodGroup": "",
+                    "dob": "19/01",
+                    "phone": "",
+                    "photo": "images/Bhavani Atha.jpeg"
+                },
+                {
+                    "id": "1792907721051",
+                    "firstName": "Akula",
+                    "lastName": "Jaswanth",
+                    "category": "Maridhi",
+                    "bloodGroup": "",
+                    "dob": "01/09/2009",
+                    "phone": "",
+                    "photo": "images/Jaswanth.jpeg"
+                },
+                {
+                    "id": "1792907960296",
+                    "firstName": "Akula",
+                    "lastName": "Thanish Vijaya Sivarao",
+                    "category": "Maridhi",
+                    "bloodGroup": "",
+                    "dob": "06/08/2011",
+                    "phone": "",
+                    "photo": "images/Thanish.jpeg"
+                },
+                {
+                    "id": "1792908236599",
+                    "firstName": "Narayanam",
+                    "lastName": "Lakshmi Priya",
+                    "category": "Friend",
+                    "bloodGroup": "",
+                    "dob": "02/07/2005",
+                    "phone": "+91 9346282162",
+                    "photo": "images/Priya.jpeg"
+                },
+                {
+                    "id": "1792908171073",
+                    "firstName": "Binginapalli",
+                    "lastName": "SaniaBhanu",
+                    "category": "Friend",
+                    "bloodGroup": "O+",
+                    "dob": "07/08/2005",
+                    "phone": "+91 7013784625",
+                    "photo": "images/Sania.jpeg"
+                },
+                {
+                    "id": "1792908664634",
+                    "firstName": "Gonuguntla",
+                    "lastName": "HemaLatha",
+                    "category": "Friend",
+                    "bloodGroup": "",
+                    "dob": "21/09/2005",
+                    "phone": "+91 8328548489",
+                    "photo": "images/HemaLatha.jpeg"
+                }, 
+                {
+                    "id": "1792908566246",
+                    "firstName": "Noorbasha",
+                    "lastName": "Karishma",
+                    "category": "Friend",
+                    "bloodGroup": "",
+                    "dob": "02/08/2005",
+                    "phone": "+91 7997523428",
+                    "photo": "images/Karishma.jpeg"
+                }
+            ],
+            memories: [
+                { id: 'm1', title: 'Family Vacation at Beach', date: 'Summer 2025', photo: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400' }
+            ]
+        };
+
+        let currentTab = 'profiles';
+
+        let editorStates = {
+            profile: { img: null, canvasId: 'photoPreviewCanvas', base64Id: 'photoBase64', zoomId: 'zoomRange', brightId: 'brightRange', contrastId: 'contrastRange', valSpanId: 'zoomVal', offsetX: 0, offsetY: 0 },
+            memory: { img: null, canvasId: 'memoryPreviewCanvas', base64Id: 'memoryPhotoBase64', zoomId: 'memZoomRange', brightId: 'memBrightRange', contrastId: 'memContrastRange', valSpanId: 'memZoomVal', offsetX: 0, offsetY: 0 }
+        };
+
+        function saveToLocalStorage() {
+            localStorage.setItem('pujithas_world_full_data', JSON.stringify(appData));
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            const tabProfiles = document.getElementById('tabProfiles');
+            const tabMemories = document.getElementById('tabMemories');
+            const dirSec = document.getElementById('directorySection');
+            const memSec = document.getElementById('memoriesSection');
+            const addProfBtn = document.getElementById('addProfileBtn');
+            const addMemBtn = document.getElementById('addMemoryBtn');
+            const searchContainer = document.getElementById('searchContainer');
+
+            if (tab === 'profiles') {
+                tabProfiles.className = "px-5 py-2 rounded-xl text-xs font-bold bg-pink-600 text-white shadow-sm transition";
+                tabMemories.className = "px-5 py-2 rounded-xl text-xs font-bold text-slate-600 hover:text-pink-600 transition";
+                dirSec.classList.remove('hidden');
+                memSec.classList.add('hidden');
+                addProfBtn.classList.remove('hidden');
+                addMemBtn.classList.add('hidden');
+                searchContainer.classList.remove('hidden');
+                renderProfiles();
+            } else {
+                tabMemories.className = "px-5 py-2 rounded-xl text-xs font-bold bg-purple-600 text-white shadow-sm transition";
+                tabProfiles.className = "px-5 py-2 rounded-xl text-xs font-bold text-slate-600 hover:text-pink-600 transition";
+                memSec.classList.remove('hidden');
+                dirSec.classList.add('hidden');
+                addMemBtn.classList.remove('hidden');
+                addProfBtn.classList.add('hidden');
+                searchContainer.classList.add('hidden');
+                renderMemories();
+            }
+        }
+
+        function initImageEditor(event, canvasId, base64Id, containerId, type) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const displaySpanId = type === 'profile' ? 'fileNameDisplay' : 'memoryFileNameDisplay';
+            document.getElementById(displaySpanId).innerText = file.name;
+            document.getElementById(containerId).classList.remove('hidden');
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const state = editorStates[type];
+                    state.img = img;
+                    state.offsetX = 0;
+                    state.offsetY = 0;
+                    document.getElementById(state.zoomId).value = 1;
+                    document.getElementById(state.brightId).value = 100;
+                    document.getElementById(state.contrastId).value = 100;
+                    drawCanvas(type);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function panImage(type, dx, dy) {
+            const state = editorStates[type];
+            if (!state.img) return;
+            state.offsetX += dx;
+            state.offsetY += dy;
+            drawCanvas(type);
+        }
+
+        function updateImageTransform(type) {
+            drawCanvas(type);
+        }
+
+        function drawCanvas(type) {
+            const state = editorStates[type];
+            if (!state.img) return;
+
+            const canvas = document.getElementById(state.canvasId);
+            const ctx = canvas.getContext('2d');
+            const zoom = parseFloat(document.getElementById(state.zoomId).value);
+            const brightness = document.getElementById(state.brightId).value;
+            const contrast = document.getElementById(state.contrastId).value;
+
+            if (state.valSpanId) {
+                document.getElementById(state.valSpanId).innerText = Math.round(zoom * 100) + '%';
+            }
+
+            canvas.width = 300;
+            canvas.height = type === 'profile' ? 300 : (state.img.height / state.img.width) * 300;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.filter = `brightness(${brightness}%) contrast(${contrast}%)`;
+
+            const hRatio = canvas.width / state.img.width;
+            const vRatio = canvas.height / state.img.height;
+            const coverRatio = type === 'profile' ? Math.max(hRatio, vRatio) : Math.min(hRatio, vRatio);
+            const ratio = coverRatio * zoom;
+
+            const centerShiftX = (canvas.width - state.img.width * ratio) / 2 + state.offsetX;
+            const centerShiftY = (canvas.height - state.img.height * ratio) / 2 + state.offsetY;
+
+            ctx.drawImage(state.img, 0, 0, state.img.width, state.img.height, centerShiftX, centerShiftY, state.img.width * ratio, state.img.height * ratio);
+
+            document.getElementById(state.base64Id).value = canvas.toDataURL('image/jpeg', 0.9);
+        }
+
+        function calculateAge(dobString) {
+            if (!dobString) return null;
+            let dob;
+            if (dobString.includes('/')) {
+                const parts = dobString.split('/');
+                if (parts.length === 3) {
+                    dob = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+                }
+            } else {
+                dob = new Date(dobString);
+            }
+            if (!dob || isNaN(dob.getTime())) return null;
+            const diff = Date.now() - dob.getTime();
+            const ageDate = new Date(diff);
+            return Math.abs(ageDate.getUTCFullYear() - 1970);
+        }
+
+        function renderProfiles(dataToRender = appData.profiles) {
+            const grid = document.getElementById('profilesGrid');
+            const emptyState = document.getElementById('emptyState');
+            grid.innerHTML = '';
+
+            if (dataToRender.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            dataToRender.forEach(p => {
+                const avatar = p.photo && p.photo.trim() !== '' ? p.photo : `https://ui-avatars.com/api/?name=${encodeURIComponent(p.firstName + ' ' + p.lastName)}&background=fbcfe8&color=be185d`;
+
+                const card = document.createElement('div');
+                card.className = 'bg-white/90 backdrop-blur-sm rounded-3xl border border-pink-100/80 shadow-sm card-hover p-6 flex flex-col items-center text-center relative';
+                card.innerHTML = `
+                    <div class="absolute top-4 right-4 flex items-center gap-1">
+                        <button onclick="editProfile('${p.id}')" class="text-slate-400 hover:text-pink-600 p-2 transition rounded-xl hover:bg-pink-50" title="Edit"><i class="fa-solid fa-pen text-xs"></i></button>
+                        <button onclick="deleteProfile('${p.id}')" class="text-slate-400 hover:text-rose-600 p-2 transition rounded-xl hover:bg-rose-50" title="Delete"><i class="fa-solid fa-trash text-xs"></i></button>
+                    </div>
+
+                    <img src="${avatar}" alt="${p.firstName}" class="w-24 h-24 rounded-full object-cover shadow-md mb-4 border-4 border-pink-50">
+                    
+                    <h4 class="font-bold text-slate-800 text-lg mb-0.5">${p.firstName} ${p.lastName}</h4>
+                    <p class="text-xs font-semibold text-pink-500 mb-4">${p.category}</p>
+
+                    <button onclick="viewDetails('${p.id}')" class="w-full py-2.5 bg-pink-50 hover:bg-pink-100 text-pink-600 rounded-2xl text-xs font-bold transition shadow-sm">
+                        View Details
+                    </button>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function renderMemories() {
+            const grid = document.getElementById('memoriesGrid');
+            const emptyState = document.getElementById('memoriesEmptyState');
+            grid.innerHTML = '';
+
+            if (appData.memories.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            appData.memories.forEach(m => {
+                const card = document.createElement('div');
+                card.className = 'bg-white/90 backdrop-blur-sm rounded-3xl border border-purple-100/80 shadow-sm card-hover overflow-hidden flex flex-col justify-between relative cursor-pointer select-none';
+                
+                // Click or double-click to view memory in full screen
+                card.onclick = () => openFullImage(m.photo);
+                card.ondblclick = () => openFullImage(m.photo);
+
+                card.innerHTML = `
+                    <div class="relative group">
+                        <img src="${m.photo}" alt="${m.title}" class="w-full h-52 object-cover">
+                        <button onclick="event.stopPropagation(); deleteMemory('${m.id}')" class="absolute top-3 right-3 bg-white/95 text-slate-500 hover:text-rose-600 w-8 h-8 rounded-full shadow-md flex items-center justify-center transition" title="Delete Memory"><i class="fa-solid fa-trash text-xs"></i></button>
+                    </div>
+                    <div class="p-4 text-left">
+                        <h4 class="font-bold text-slate-800 text-sm mb-1">${m.title}</h4>
+                        ${m.date ? `<p class="text-xs font-medium text-purple-500"><i class="fa-solid fa-calendar-days mr-1"></i> ${m.date}</p>` : ''}
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function viewDetails(id) {
+            const p = appData.profiles.find(item => item.id === id);
+            if (!p) return;
+
+            const age = calculateAge(p.dob);
+            const avatar = p.photo && p.photo.trim() !== '' ? p.photo : `https://ui-avatars.com/api/?name=${encodeURIComponent(p.firstName + ' ' + p.lastName)}&background=fbcfe8&color=be185d`;
+
+            const container = document.getElementById('detailsContent');
+            container.innerHTML = `
+                <img src="${avatar}" alt="${p.firstName}" onclick="openFullImage('${avatar}')" class="w-36 h-36 rounded-full object-cover shadow-lg mb-4 border-4 border-pink-50 cursor-pointer hover:scale-105 transition" title="Click to view full screen">
+                <h3 class="text-2xl font-bold text-slate-800 mb-1">${p.firstName} ${p.lastName}</h3>
+                <span class="px-3 py-1 bg-pink-50 text-pink-600 text-xs font-semibold rounded-full mb-6 border border-pink-100">${p.category}</span>
+
+                <div class="w-full space-y-3 text-left bg-pink-50/30 p-4 rounded-2xl border border-pink-100 text-xs text-slate-600 mb-6">
+                    <div class="flex justify-between items-center py-1.5 border-b border-pink-100/60">
+                        <span class="font-medium text-slate-400"><i class="fa-solid fa-droplet text-rose-500 mr-2"></i> Blood Group</span>
+                        <span class="font-semibold text-slate-700">${p.bloodGroup || 'Not specified'}</span>
+                    </div>
+                    <div class="flex justify-between items-center py-1.5 border-b border-pink-100/60">
+                        <span class="font-medium text-slate-400"><i class="fa-solid fa-cake-candles text-amber-500 mr-2"></i> Date of Birth</span>
+                        <span class="font-semibold text-slate-700">${p.dob ? `${p.dob} ${age !== null ? `(${age} yrs)` : ''}` : 'Not specified'}</span>
+                    </div>
+                    <div class="flex justify-between items-center py-1.5 border-b border-pink-100/60">
+                        <span class="font-medium text-slate-400"><i class="fa-solid fa-phone text-emerald-500 mr-2"></i> Phone</span>
+                        <span class="font-semibold text-slate-700">${p.phone || 'Not specified'}</span>
+                    </div>
+                    ${p.notes ? `
+                    <div class="flex flex-col py-1.5 gap-1">
+                        <span class="font-medium text-slate-400"><i class="fa-solid fa-note-sticky text-purple-500 mr-2"></i> Notes</span>
+                        <span class="font-semibold text-slate-700 italic">${p.notes}</span>
+                    </div>` : ''}
+                </div>
+
+                <button onclick="closeDetailsModal()" class="w-full py-3 bg-slate-800 hover:bg-slate-900 text-white rounded-2xl text-xs font-bold transition shadow-md">
+                    Close
+                </button>
+            `;
+
+            document.getElementById('detailsModal').classList.remove('hidden');
+        }
+
+        function closeDetailsModal() {
+            document.getElementById('detailsModal').classList.add('hidden');
+        }
+
+        /* Interactive Full Screen Image Viewer State */
+        let fullScale = 1;
+        let fullPosX = 0;
+        let fullPosY = 0;
+        let isDraggingFull = false;
+        let startX = 0;
+        let startY = 0;
+
+        function updateFullImageTransform() {
+            const img = document.getElementById('fullImageDisplay');
+            img.style.transform = `translate(${fullPosX}px, ${fullPosY}px) scale(${fullScale})`;
+            document.getElementById('fullZoomLevel').innerText = Math.round(fullScale * 100) + '%';
+        }
+
+        function zoomFullImage(delta) {
+            fullScale = Math.min(Math.max(0.5, fullScale + delta), 4);
+            if (fullScale === 1) {
+                fullPosX = 0;
+                fullPosY = 0;
+            }
+            updateFullImageTransform();
+        }
+
+        function resetFullImageZoom() {
+            fullScale = 1;
+            fullPosX = 0;
+            fullPosY = 0;
+            updateFullImageTransform();
+        }
+
+        function openFullImage(src) {
+            const img = document.getElementById('fullImageDisplay');
+            img.src = src;
+            resetFullImageZoom();
+            document.getElementById('fullImageModal').classList.remove('hidden');
+        }
+
+        function closeFullImage() {
+            document.getElementById('fullImageModal').classList.add('hidden');
+        }
+
+        /* Mouse Wheel Zoom & Drag Logic for Fullscreen Image */
+        const container = document.getElementById('fullImageContainer');
+
+        container.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const delta = e.deltaY < 0 ? 0.15 : -0.15;
+            zoomFullImage(delta);
+        }, { passive: false });
+
+        container.addEventListener('mousedown', (e) => {
+            if (fullScale > 1) {
+                isDraggingFull = true;
+                startX = e.clientX - fullPosX;
+                startY = e.clientY - fullPosY;
+                container.classList.replace('cursor-grab', 'cursor-grabbing');
+            }
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (isDraggingFull) {
+                fullPosX = e.clientX - startX;
+                fullPosY = e.clientY - startY;
+                updateFullImageTransform();
+            }
+        });
+
+        window.addEventListener('mouseup', () => {
+            isDraggingFull = false;
+            container.classList.replace('cursor-grabbing', 'cursor-grab');
+        });
+
+        /* Touch support for mobile dragging */
+        container.addEventListener('touchstart', (e) => {
+            if (fullScale > 1 && e.touches.length === 1) {
+                isDraggingFull = true;
+                startX = e.touches[0].clientX - fullPosX;
+                startY = e.touches[0].clientY - fullPosY;
+            }
+        });
+
+        container.addEventListener('touchmove', (e) => {
+            if (isDraggingFull && e.touches.length === 1) {
+                fullPosX = e.touches[0].clientX - startX;
+                fullPosY = e.touches[0].clientY - startY;
+                updateFullImageTransform();
+            }
+        });
+
+        container.addEventListener('touchend', () => {
+            isDraggingFull = false;
+        });
+
+        function filterProfiles() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            let filtered = appData.profiles.filter(p => {
+                const fullName = `${p.firstName} ${p.lastName}`.toLowerCase();
+                const cat = (p.category || '').toLowerCase();
+                const blood = (p.bloodGroup || '').toLowerCase();
+                const notes = (p.notes || '').toLowerCase();
+                const dob = (p.dob || '').toLowerCase();
+                return fullName.includes(query) || cat.includes(query) || blood.includes(query) || notes.includes(query) || dob.includes(query);
+            });
+            renderProfiles(filtered);
+        }
+
+        function openModal() {
+            document.getElementById('modalTitle').innerText = 'Add New Profile';
+            document.getElementById('profileForm').reset();
+            document.getElementById('profileId').value = '';
+            document.getElementById('photoBase64').value = '';
+            document.getElementById('fileNameDisplay').innerText = 'No file chosen';
+            document.getElementById('photoEditorContainer').classList.add('hidden');
+            editorStates.profile.img = null;
+            document.getElementById('profileModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('profileModal').classList.add('hidden');
+        }
+
+        function openMemoryModal() {
+            document.getElementById('memoryForm').reset();
+            document.getElementById('memoryPhotoBase64').value = '';
+            document.getElementById('memoryFileNameDisplay').innerText = 'No file chosen';
+            document.getElementById('memoryEditorContainer').classList.add('hidden');
+            editorStates.memory.img = null;
+            document.getElementById('memoryModal').classList.remove('hidden');
+        }
+
+        function closeMemoryModal() {
+            document.getElementById('memoryModal').classList.add('hidden');
+        }
+
+        function saveProfile(event) {
+            event.preventDefault();
+            const id = document.getElementById('profileId').value;
+            const existingProfile = id ? appData.profiles.find(p => p.id === id) : null;
+            const photoVal = document.getElementById('photoBase64').value || (existingProfile ? existingProfile.photo : '');
+
+            const profileData = {
+                id: id ? id : Date.now().toString(),
+                firstName: document.getElementById('firstName').value.trim(),
+                lastName: document.getElementById('lastName').value.trim(),
+                category: document.getElementById('category').value.trim(),
+                bloodGroup: document.getElementById('bloodGroup').value,
+                dob: document.getElementById('dob').value.trim(),
+                phone: document.getElementById('phone').value.trim(),
+                photo: photoVal,
+                notes: document.getElementById('notes').value.trim()
+            };
+
+            if (id) {
+                const index = appData.profiles.findIndex(p => p.id === id);
+                if (index !== -1) appData.profiles[index] = profileData;
+            } else {
+                appData.profiles.unshift(profileData);
+            }
+
+            saveToLocalStorage();
+            renderProfiles();
+            closeModal();
+        }
+
+        function saveMemory(event) {
+            event.preventDefault();
+            const photoVal = document.getElementById('memoryPhotoBase64').value;
+            if (!photoVal) {
+                alert('Please select a photo for the memory.');
+                return;
+            }
+
+            const memoryData = {
+                id: Date.now().toString(),
+                title: document.getElementById('memoryTitle').value.trim(),
+                date: document.getElementById('memoryDate').value.trim(),
+                photo: photoVal
+            };
+
+            appData.memories.unshift(memoryData);
+            saveToLocalStorage();
+            renderMemories();
+            closeMemoryModal();
+        }
+
+        function editProfile(id) {
+            const p = appData.profiles.find(item => item.id === id);
+            if (!p) return;
+
+            document.getElementById('modalTitle').innerText = 'Edit Profile';
+            document.getElementById('profileId').value = p.id;
+            document.getElementById('firstName').value = p.firstName;
+            document.getElementById('lastName').value = p.lastName;
+            document.getElementById('category').value = p.category;
+            document.getElementById('bloodGroup').value = p.bloodGroup || '';
+            document.getElementById('dob').value = p.dob || '';
+            document.getElementById('phone').value = p.phone || '';
+            document.getElementById('photoBase64').value = p.photo || '';
+            document.getElementById('fileNameDisplay').innerText = p.photo ? 'Current photo retained' : 'No file chosen';
+            document.getElementById('notes').value = p.notes || '';
+            document.getElementById('photoEditorContainer').classList.add('hidden');
+
+            document.getElementById('profileModal').classList.remove('hidden');
+        }
+
+        function deleteProfile(id) {
+            if (confirm('Are you sure you want to delete this profile?')) {
+                appData.profiles = appData.profiles.filter(p => p.id !== id);
+                saveToLocalStorage();
+                renderProfiles();
+            }
+        }
+
+        function deleteMemory(id) {
+            if (confirm('Are you sure you want to delete this memory?')) {
+                appData.memories = appData.memories.filter(m => m.id !== id);
+                saveToLocalStorage();
+                renderMemories();
+            }
+        }
+
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", "pujithas_world_backup.json");
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function importData(event) {
+            const fileReader = new FileReader();
+            if (event.target.files[0]) {
+                fileReader.readAsText(event.target.files[0], "UTF-8");
+                fileReader.onload = (e) => {
+                    try {
+                        const imported = JSON.parse(e.target.result);
+                        if (Array.isArray(imported)) {
+                            appData.profiles = imported;
+                        } else if (imported && imported.profiles) {
+                            appData = imported;
+                        }
+                        saveToLocalStorage();
+                        if (currentTab === 'profiles') renderProfiles();
+                        else renderMemories();
+                        alert('Directory data imported successfully!');
+                    } catch (error) {
+                        alert('Error parsing JSON file.');
+                    }
+                };
+            }
+        }
+
+        // Initial render on load
+        renderProfiles();
+    </script>
+</body>
+</html>
